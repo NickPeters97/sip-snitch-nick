@@ -1,0 +1,22 @@
+name: sip_snitch_mobile
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: ^3.6.0
+  flutter: ^3.27.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  provider: ^6.0.1
+  unsplash_client: 2.2.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  lint: ^2.3.0
+
+flutter:
+  uses-material-design: true
