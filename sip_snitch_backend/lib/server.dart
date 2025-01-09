@@ -5,6 +5,8 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart';
 import 'package:shelf_router/shelf_router.dart';
 
+const _allowedDrinks = ['Water', 'Coffee', 'RedBull', 'Club Mate', 'Beer'];
+
 class SipSnitchServer {
   final int port;
   HttpServer? _httpServer;
@@ -35,9 +37,14 @@ class SipSnitchServer {
 
   Future<Response> _addSipHandler(Request request) async {
     final payload = await request.readAsString();
-    final body = jsonDecode(payload);
+    final body = jsonDecode(payload) as Map<String, dynamic>;
 
-    final drink = body['name'] as String;
+    final drink = '${body['name']}';
+    final isAllowedDrink = _allowedDrinks.contains(drink);
+
+    if (!isAllowedDrink) {
+      throw Exception('Drink $drink is not allowed');
+    }
 
     _sips[drink] = (_sips[drink] ?? 0) + 1;
 
