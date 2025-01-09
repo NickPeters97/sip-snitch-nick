@@ -63,7 +63,7 @@ class _TodayPageState extends State<TodayPage> {
                   return DrinkTile(
                     drink: drink,
                     model: notifier,
-                    key: ValueKey(drink.name),
+                    key: ValueKey(drink.name + drink.sips.toString()),
                   );
                 },
               ),

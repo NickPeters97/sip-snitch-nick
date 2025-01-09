@@ -40,6 +40,9 @@ class DrinkChangeNotifier extends ChangeNotifier {
     try {
       // Fetch stats from the repository
       final stats = await repository.fetchStats();
+      for (var x = 0; x < _drinks.length; x++) {
+        _drinks[x] = Drinks(name: drinks[x].name, sips: 0);
+      }
 
       // Update the local drinks list with the stats
       for (final drink in _drinks) {

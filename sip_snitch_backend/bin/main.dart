@@ -17,5 +17,6 @@ Future<void> main(List<String> args) async {
     await server.stop();
     exit(1);
   });
-  withHotreload(() => server.start());
+  await server.start();
+  // withHotreload(() => server.start());
 }
