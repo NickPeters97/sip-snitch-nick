@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sip_snitch_mobile/src/drink_change_notifier.dart';
@@ -11,26 +13,60 @@ class TodayPage extends StatefulWidget {
 }
 
 class _TodayPageState extends State<TodayPage> {
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchStats();
+  }
+
+  Future<void> _fetchStats() async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final notifier = context.read<DrinkChangeNotifier>();
+      await notifier.fetchStats();
+    } catch (error) {
+      print('Error fetching stats: $error');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final model = context.watch<DrinkChangeNotifier>();
-    final drinks = model.drinks;
+    final notifier = context.watch<DrinkChangeNotifier>();
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Sips Today'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.refresh),
+            onPressed: () async {
+              await notifier.fetchStats();
+            },
+          ),
+        ],
       ),
       body: Center(
-        child: ListView.builder(
-          itemCount: drinks.length,
-          itemBuilder: (context, index) {
-            final drink = drinks[index];
-            return DrinkTile(
-              drink: drink,
-              model: model,
-              key: ValueKey(drink.name),
-            );
-          },
-        ),
+        child: _isLoading
+            ? CircularProgressIndicator()
+            : ListView.builder(
+                itemCount: notifier.drinks.length,
+                itemBuilder: (context, index) {
+                  final drink = notifier.drinks[index];
+                  return DrinkTile(
+                    drink: drink,
+                    model: notifier,
+                    key: ValueKey(drink.name),
+                  );
+                },
+              ),
       ),
     );
   }
@@ -106,8 +142,7 @@ class Drinks {
 final unsplashClient = UnsplashClient(
   settings: ClientSettings(
     credentials: AppCredentials(
-      accessKey:
-          '1afc67cd51a21845c38e3bf0607ebed60452c690191f40dadfa60c287dbd881b',
+      accessKey: '1afc67cd51a21845c38e3bf0607ebed60452c690191f40dadfa60c287dbd881b',
     ),
   ),
 );

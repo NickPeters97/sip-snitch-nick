@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:shelf/shelf.dart';
@@ -7,26 +8,20 @@ import 'package:shelf_router/shelf_router.dart';
 class SipSnitchServer {
   final int port;
   HttpServer? _httpServer;
+  final Map<String, int> _sips = {};
 
-  SipSnitchServer({
-    required this.port,
-  });
+  SipSnitchServer({required this.port});
 
   Future<void> start() async {
-    // Configure routes.
     final router = Router()
-      ..get('/', _rootHandler)
-      ..get('/echo/<message>', _echoHandler);
-    // TODO move new endpoints to separate files
+      ..post('/sip', _addSipHandler)
+      ..get('/stats', _getStatsHandler);
 
-    // Configure a pipeline that logs requests.
-    final handler =
-        Pipeline().addMiddleware(logRequests()).addHandler(router.call);
+    final handler = Pipeline().addMiddleware(logRequests()).addHandler(router.call);
 
-    // Use any available host or container IP (usually `0.0.0.0`).
     final ip = InternetAddress.anyIPv4;
-    // For running in containers, we respect the PORT environment variable.
     _httpServer = await serve(handler, ip, port);
+    print('Server running on http://${_httpServer!.address.host}:${_httpServer!.port}');
   }
 
   Future<void> stop() async {
@@ -34,6 +29,25 @@ class SipSnitchServer {
       await _httpServer!.close(force: true);
       _httpServer = null;
     }
+  }
+
+  Future<Response> _addSipHandler(Request request) async {
+    final payload = await request.readAsString();
+    final body = Uri.splitQueryString(payload);
+
+    final drink = body['name'];
+    if (drink == null || drink.isEmpty) {
+      return Response(400, body: 'Drink name is required');
+    }
+
+    _sips[drink] = (_sips[drink] ?? 0) + 1;
+
+    return Response.ok('Added a sip of $drink');
+  }
+
+  Response _getStatsHandler(Request request) {
+    final stats = {for (final entry in _sips.entries) entry.key: entry.value};
+    return Response.ok(jsonEncode(stats), headers: {'Content-Type': 'application/json'});
   }
 
   HttpServer get httpServer {
@@ -49,13 +63,4 @@ class SipSnitchServer {
     }
     return _httpServer!.address;
   }
-}
-
-Response _rootHandler(Request req) {
-  return Response.ok('Hello, World!\n');
-}
-
-Response _echoHandler(Request request) {
-  final message = request.params['message'];
-  return Response.ok('$message\n');
 }
