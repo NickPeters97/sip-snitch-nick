@@ -48,7 +48,7 @@ class _TodayPageState extends State<TodayPage> {
           IconButton(
             icon: Icon(Icons.refresh),
             onPressed: () async {
-              await notifier.fetchStats();
+              await _fetchStats();
             },
           ),
         ],

@@ -12,7 +12,7 @@ class SipSnitchServer {
 
   SipSnitchServer({required this.port});
 
-  Future<void> start() async {
+  Future<HttpServer> start() async {
     final router = Router()
       ..post('/sip', _addSipHandler)
       ..get('/stats', _getStatsHandler);
@@ -22,6 +22,8 @@ class SipSnitchServer {
     final ip = InternetAddress.anyIPv4;
     _httpServer = await serve(handler, ip, port);
     print('Server running on http://${_httpServer!.address.host}:${_httpServer!.port}');
+
+    return _httpServer!;
   }
 
   Future<void> stop() async {
@@ -33,12 +35,9 @@ class SipSnitchServer {
 
   Future<Response> _addSipHandler(Request request) async {
     final payload = await request.readAsString();
-    final body = Uri.splitQueryString(payload);
+    final body = jsonDecode(payload);
 
-    final drink = body['name'];
-    if (drink == null || drink.isEmpty) {
-      return Response(400, body: 'Drink name is required');
-    }
+    final drink = body['name'] as String;
 
     _sips[drink] = (_sips[drink] ?? 0) + 1;
 

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:shelf_hotreload/shelf_hotreload.dart';
 import 'package:sip_snitch_backend/server.dart';
 
 Future<void> main(List<String> args) async {
@@ -16,7 +17,5 @@ Future<void> main(List<String> args) async {
     await server.stop();
     exit(1);
   });
-
-  await server.start();
-  print('Serving at http://${server.address.host}:${server.port}');
+  withHotreload(() => server.start());
 }

@@ -1,3 +1,4 @@
+import 'package:dartx/dartx.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sip_snitch_mobile/src/drink_repository.dart';
 import 'package:sip_snitch_mobile/src/today_page.dart';
@@ -22,7 +23,8 @@ class DrinkChangeNotifier extends ChangeNotifier {
     try {
       await repository.addSip(name);
 
-      final drink = _drinks.firstWhere((drink) => drink.name == name);
+      final Drinks? drink = _drinks.firstOrNullWhere((drink) => drink.name == name);
+      if (drink == null) throw 'Drink not found!';
       final index = _drinks.indexOf(drink);
 
       _drinks[index] = Drinks(name: drink.name, sips: drink.sips + 1);

@@ -10,8 +10,9 @@ class DrinkRepository {
     try {
       final response = await http.post(
         Uri.parse('$backendUrl/sip'),
-        body: {'name': drinkName},
+        body: jsonEncode({'name': drinkName}),
       );
+      print(response.body);
 
       if (response.statusCode != 200) {
         throw Exception('Failed to add sip: ${response.body}');
