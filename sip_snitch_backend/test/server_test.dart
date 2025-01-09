@@ -1,39 +1,31 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/http.dart';
+import 'package:sip_snitch_backend/server.dart';
 import 'package:test/test.dart';
 
+late SipSnitchServer server;
+final port = '8081';
+String get host => 'http://${server.httpServer.address.host}:${server.httpServer.port}';
+
 void main() {
-  final port = '8080';
-  final host = 'http://0.0.0.0:$port';
-  late Process p;
-
   setUp(() async {
-    p = await Process.start(
-      'dart',
-      ['run', 'bin/main.dart'],
-      environment: {'PORT': port},
-    );
-    // Wait for server to start and print to stdout.
-    await p.stdout.first;
+    server = SipSnitchServer(port: int.parse(port));
+    await server.start();
   });
 
-  tearDown(() => p.kill());
+  tearDown(() => server.stop());
 
-  test('Root', () async {
-    final response = await get(Uri.parse('$host/'));
+  test('successful sip', () async {
+    final response = await post(Uri.parse('$host/sip'), body: jsonEncode({'name': 'Water'}));
+    expect(response.body, 'Added a sip of Water');
     expect(response.statusCode, 200);
-    expect(response.body, 'Hello, World!\n');
   });
 
-  test('Echo', () async {
-    final response = await get(Uri.parse('$host/echo/hello'));
-    expect(response.statusCode, 200);
-    expect(response.body, 'hello\n');
-  });
-
-  test('404', () async {
-    final response = await get(Uri.parse('$host/foobar'));
-    expect(response.statusCode, 404);
+  test('not allowed drink', () async {
+    final response = await post(Uri.parse('$host/sip'), body: jsonEncode({'name': 'Cola'}));
+    expect(response.body, 'Drink Cola is not allowed');
+    expect(response.statusCode, 400);
   });
 }
