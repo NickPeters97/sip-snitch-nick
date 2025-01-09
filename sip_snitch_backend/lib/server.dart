@@ -8,14 +8,17 @@ import 'package:shelf_router/shelf_router.dart';
 class SipSnitchServer {
   final int port;
   HttpServer? _httpServer;
-  final Map<String, int> _sips = {};
+
+  // Map für tägliche Speicherung der Sips
+  final Map<String, Map<String, int>> _dailySips = {};
 
   SipSnitchServer({required this.port});
 
   Future<void> start() async {
     final router = Router()
       ..post('/sip', _addSipHandler)
-      ..get('/stats', _getStatsHandler);
+      ..get('/stats', _getStatsHandler)
+      ..get('/today-stats', _getTodayStatsHandler); // Neuer Endpoint hinzugefügt
 
     final handler = Pipeline().addMiddleware(logRequests()).addHandler(router.call);
 
@@ -40,14 +43,27 @@ class SipSnitchServer {
       return Response(400, body: 'Drink name is required');
     }
 
-    _sips[drink] = (_sips[drink] ?? 0) + 1;
+    final today = DateTime.now().toIso8601String().split('T').first;
+
+    _dailySips[today] ??= {};
+    _dailySips[today]![drink] = (_dailySips[today]![drink] ?? 0) + 1;
 
     return Response.ok('Added a sip of $drink');
   }
 
   Response _getStatsHandler(Request request) {
-    final stats = {for (final entry in _sips.entries) entry.key: entry.value};
+    final stats = {
+      for (final entry in _dailySips.entries)
+        entry.key: {for (final drink in entry.value.entries) drink.key: drink.value}
+    };
     return Response.ok(jsonEncode(stats), headers: {'Content-Type': 'application/json'});
+  }
+
+  Response _getTodayStatsHandler(Request request) {
+    final today = DateTime.now().toIso8601String().split('T').first;
+
+    final todayStats = _dailySips[today] ?? {};
+    return Response.ok(jsonEncode(todayStats), headers: {'Content-Type': 'application/json'});
   }
 
   HttpServer get httpServer {
