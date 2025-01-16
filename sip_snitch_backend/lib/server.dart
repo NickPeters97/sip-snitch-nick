@@ -1,11 +1,15 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:dart_firebase_admin/auth.dart';
+import 'package:dart_firebase_admin/dart_firebase_admin.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart';
 import 'package:shelf_router/shelf_router.dart';
 
 const _allowedDrinks = ['Water', 'Coffee', 'RedBull', 'Club Mate', 'Beer'];
+
+late FirebaseAdminApp admin;
 
 class SipSnitchServer {
   final int port;
@@ -15,11 +19,20 @@ class SipSnitchServer {
   SipSnitchServer({required this.port});
 
   Future<HttpServer> start() async {
+    admin = FirebaseAdminApp.initializeApp(
+      'drink-track',
+      // This will obtain authentication information from the environment
+      Credential.fromApplicationDefaultCredentials(),
+    );
+
     final router = Router()
       ..post('/sip', _addSipHandler)
-      ..get('/stats', _getStatsHandler);
+      ..get('/stats', _getStatsHandler)
+      ..get('/greet/<name>', _greetingHandler)
+      ..post('/greet2', _greetingHandlerPost);
 
     final handler = Pipeline().addMiddleware(logRequests()).addHandler(router.call);
+    // Pipeline().addMiddleware(logRequests()).addMiddleware(firebaseAuthMiddleware()).addHandler(router.call);
 
     final ip = InternetAddress.anyIPv4;
     _httpServer = await serve(handler, ip, port);
@@ -69,4 +82,56 @@ class SipSnitchServer {
     }
     return _httpServer!.address;
   }
+
+  Response _greetingHandler(Request request) {
+    final name = request.params['name'] ?? 'PHNTM';
+
+    print('Hello $name');
+    return Response.ok('Hello $name');
+  }
+
+  Future<Response> _greetingHandlerPost(Request request) async {
+    try {
+      final payload = await request.readAsString();
+      final body = jsonDecode(payload) as Map<String, dynamic>;
+
+      final name = body['name'] ?? 'PHNTM';
+
+      print('Hello $name');
+      return Response.ok('Hello $name');
+    } catch (e) {
+      return Response.internalServerError(body: 'Invalid request: $e');
+    }
+  }
+}
+
+Middleware firebaseAuthMiddleware() {
+  final auth = Auth(admin);
+
+  return (Handler innerHandler) {
+    return (Request request) async {
+      try {
+        // Extract the Authorization header
+        final authHeader = request.headers['authorization'];
+        if (authHeader == null || !authHeader.startsWith('Bearer ')) {
+          return Response.forbidden('Missing or invalid Authorization header');
+        }
+
+        // Extract the token
+        final idToken = authHeader.substring(7); // Remove "Bearer " prefix
+
+        // Verify the token
+        final decodedToken = await auth.verifyIdToken(idToken);
+
+        // Add the decoded token to the request context
+        final context = Map<String, Object?>.from(request.context)..['firebaseUser'] = decodedToken;
+
+        // Forward the request with the updated context
+        return await innerHandler(request.change(context: context));
+      } catch (e) {
+        // Handle token verification errors
+        throw 'Invalid Firebase token: $e';
+      }
+    };
+  };
 }
