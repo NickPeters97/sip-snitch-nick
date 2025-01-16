@@ -1,0 +1,1 @@
+{"flutter":{"platforms":{"ios":{"default":{"projectId":"drink-track","appId":"1:394870284554:ios:3f22e1a0734818de511af3","uploadDebugSymbols":false,"fileOutput":"ios/Runner/GoogleService-Info.plist"}},"dart":{"lib/firebase_options.dart":{"projectId":"drink-track","configurations":{"ios":"1:394870284554:ios:3f22e1a0734818de511af3"}}}}}}

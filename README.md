@@ -71,15 +71,15 @@ docker run -it sip_snitch_backend
 ```
 
 ## Step 4: Deploy to Google Cloud Run
-- [ ] Create Google Cloud Service Account
+- [x] Create Google Cloud Service Account
 - https://console.cloud.google.com/iam-admin/iam?authuser=1&inv=1&invt=Abm_JA&project=drink-track
 
 Now that the container is working locally, push it to Google Cloud and deploy it on Cloud Run.
 
 Continue the [globle.dev Docker tutorial](https://globe.dev/blog/4-ways-deploy-dart-backend/#google-cloud-run--serverless)
 
-- [ ] Deploy your backend to Google Cloud Run in the `drink-track` project
-- [ ] Automate deployment with Cloud Build
+- [x] Deploy your backend to Google Cloud Run in the `drink-track` project
+- [x] Automate deployment with Cloud Build
 
 ## Step 5: Add Firebase Auth
 

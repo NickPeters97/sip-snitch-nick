@@ -3,8 +3,14 @@ import 'package:provider/provider.dart';
 import 'package:sip_snitch_mobile/src/drink_change_notifier.dart';
 import 'package:sip_snitch_mobile/src/drink_repository.dart';
 import 'package:sip_snitch_mobile/src/today_page.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const SipSnitchApp());
 }
 
