@@ -43,7 +43,7 @@ class SipSnitchServer {
     final isAllowedDrink = _allowedDrinks.contains(drink);
 
     if (!isAllowedDrink) {
-      return Response(400, body: 'Drink $drink is not allowed');
+      return Response(400, body: 'Drink $drink is not allowed!!!');
     }
 
     _sips[drink] = (_sips[drink] ?? 0) + 1;
