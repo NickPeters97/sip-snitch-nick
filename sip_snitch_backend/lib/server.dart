@@ -31,8 +31,9 @@ class SipSnitchServer {
       ..get('/greet/<name>', _greetingHandler)
       ..post('/greet2', _greetingHandlerPost);
 
-    final handler = Pipeline().addMiddleware(logRequests()).addHandler(router.call);
-    // Pipeline().addMiddleware(logRequests()).addMiddleware(firebaseAuthMiddleware()).addHandler(router.call);
+    // final handler = Pipeline().addMiddleware(logRequests()).addHandler(router.call);
+    final handler =
+        Pipeline().addMiddleware(logRequests()).addMiddleware(firebaseAuthMiddleware()).addHandler(router.call);
 
     final ip = InternetAddress.anyIPv4;
     _httpServer = await serve(handler, ip, port);
