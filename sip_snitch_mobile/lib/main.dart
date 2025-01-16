@@ -5,7 +5,7 @@ import 'package:sip_snitch_mobile/src/drink_repository.dart';
 import 'package:sip_snitch_mobile/src/today_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:sip_snitch_mobile/src/user_auth.dart';
-import 'firebase_options.dart';
+import 'package:sip_snitch_mobile/firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

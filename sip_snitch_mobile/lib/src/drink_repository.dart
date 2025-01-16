@@ -1,14 +1,18 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-class DrinkRepository {
-  const DrinkRepository();
+import 'package:sip_snitch_mobile/src/authenticated_http_client.dart';
 
-  String get backendUrl => 'http://localhost:8080';
+class DrinkRepository {
+  DrinkRepository();
+
+  String get backendUrl => 'https://sip-snitch-backend-nick-394870284554.europe-west1.run.app';
+
+  final AuthenticatedHttpClient _client = AuthenticatedHttpClient(http.Client());
 
   Future<void> addSip(String drinkName) async {
     try {
-      final response = await http.post(
+      final response = await _client.post(
         Uri.parse('$backendUrl/sip'),
         body: jsonEncode({'name': drinkName}),
       );
@@ -24,7 +28,7 @@ class DrinkRepository {
 
   Future<Map<String, int>> fetchStats() async {
     try {
-      final response = await http.get(Uri.parse('$backendUrl/stats'));
+      final response = await _client.get(Uri.parse('$backendUrl/stats'));
 
       if (response.statusCode != 200) {
         throw Exception('Failed to fetch stats: ${response.body}');

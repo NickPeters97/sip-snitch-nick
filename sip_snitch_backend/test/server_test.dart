@@ -1,6 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
-
 import 'package:http/http.dart';
 import 'package:sip_snitch_backend/server.dart';
 import 'package:test/test.dart';

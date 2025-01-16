@@ -1,6 +1,4 @@
 import 'dart:io';
-
-import 'package:shelf_hotreload/shelf_hotreload.dart';
 import 'package:sip_snitch_backend/server.dart';
 
 Future<void> main(List<String> args) async {
