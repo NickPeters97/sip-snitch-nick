@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sip_snitch_mobile/src/drink_change_notifier.dart';
+import 'package:sip_snitch_mobile/src/user_auth.dart';
 import 'package:unsplash_client/unsplash_client.dart';
 
 class TodayPage extends StatefulWidget {
@@ -15,30 +16,12 @@ class TodayPage extends StatefulWidget {
 
 class _TodayPageState extends State<TodayPage> {
   bool _isLoading = false;
-  bool isUserSignedIn() {
-    final user = FirebaseAuth.instance.currentUser;
-    return user != null;
-  }
 
   @override
   void initState() {
     super.initState();
-    _signInAnonymously();
+    context.read<UserAuthenticationNotifier>().signInAnonymously();
     _fetchStats();
-  }
-
-  Future<void> _signInAnonymously() async {
-    try {
-      final userCredential = await FirebaseAuth.instance.signInAnonymously();
-      print("Signed in with temporary account. ${userCredential.user!.uid}");
-    } on FirebaseAuthException catch (e) {
-      switch (e.code) {
-        case "operation-not-allowed":
-          print("Anonymous auth hasn't been enabled for this project.");
-        default:
-          print("Unknown error.");
-      }
-    }
   }
 
   Future<void> _fetchStats() async {
@@ -60,11 +43,12 @@ class _TodayPageState extends State<TodayPage> {
   @override
   Widget build(BuildContext context) {
     final notifier = context.watch<DrinkChangeNotifier>();
-    if (!isUserSignedIn()) {
+    final userNotifier = context.watch<UserAuthenticationNotifier>();
+    if (!userNotifier.isUserSignedIn) {
       return Scaffold(
         body: Center(
             child: GestureDetector(
-          onTap: _signInAnonymously,
+          onTap: userNotifier.signInAnonymously,
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
@@ -84,7 +68,17 @@ class _TodayPageState extends State<TodayPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Sips Today'),
+        title: Row(
+          children: [
+            IconButton(
+              icon: Icon(Icons.logout),
+              onPressed: () async {
+                userNotifier.signOut();
+              },
+            ),
+            Text('Sips Today'),
+          ],
+        ),
         actions: [
           IconButton(
             icon: Icon(Icons.refresh),

@@ -4,6 +4,7 @@ import 'package:sip_snitch_mobile/src/drink_change_notifier.dart';
 import 'package:sip_snitch_mobile/src/drink_repository.dart';
 import 'package:sip_snitch_mobile/src/today_page.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:sip_snitch_mobile/src/user_auth.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -24,8 +25,13 @@ class SipSnitchApp extends StatefulWidget {
 class _SipSnitchAppState extends State<SipSnitchApp> {
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => DrinkChangeNotifier(repository: DrinkRepository()),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) => DrinkChangeNotifier(repository: DrinkRepository()),
+        ),
+        ChangeNotifierProvider(create: (context) => UserAuthenticationNotifier())
+      ],
       child: MaterialApp(
         home: TodayPage(),
       ),
