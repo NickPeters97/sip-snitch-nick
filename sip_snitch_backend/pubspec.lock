@@ -105,10 +105,11 @@ packages:
   dart_firebase_admin:
     dependency: "direct main"
     description:
-      name: dart_firebase_admin
-      sha256: a50cc3b6f976296ff76e75e7af7a0f22b51dc20b1b380cf4a19a91bb4f02a2c5
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/dart_firebase_admin"
+      ref: HEAD
+      resolved-ref: a6d14365f02e01670094da390cf23b2d3bb06a06
+      url: "https://github.com/jtdLab/dart_firebase_admin"
+    source: git
     version: "0.4.0"
   dart_jsonwebtoken:
     dependency: transitive

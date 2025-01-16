@@ -50,11 +50,18 @@ class SipSnitchServer {
   }
 
   Future<Response> _addSipHandler(Request request) async {
+    print('Test');
+
     final payload = await request.readAsString();
+    print('payload: $payload');
     final body = jsonDecode(payload) as Map<String, dynamic>;
+    print('body: $body');
 
     final drink = '${body['name']}';
+    print('drink: $drink');
+
     final isAllowedDrink = _allowedDrinks.contains(drink);
+    print('isAllowedDrink: $isAllowedDrink');
 
     if (!isAllowedDrink) {
       return Response(400, body: 'Drink $drink is not allowed!!!');
