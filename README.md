@@ -71,6 +71,8 @@ docker run -it sip_snitch_backend
 ```
 
 ## Step 4: Deploy to Google Cloud Run
+- [ ] Create Google Cloud Service Account
+- https://console.cloud.google.com/iam-admin/iam?authuser=1&inv=1&invt=Abm_JA&project=drink-track
 
 Now that the container is working locally, push it to Google Cloud and deploy it on Cloud Run.
 
